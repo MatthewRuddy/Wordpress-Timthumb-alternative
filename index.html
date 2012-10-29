@@ -1,1 +1,115 @@
-My GitHub Page
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    
+    <title>Wordpress Image resizing function &raquo; An alternative to Timthumb.php</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+</head>
+<body>
+    <div class="container">
+
+        <a href="https://github.com/matthewruddy/wordpress-timthumb-alternative">
+            <img src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png" alt="Fork me on Github" style="position: absolute; top: 0px; left: 0px; border: 0px;" />
+        </a>
+
+        <!-- Heading -->
+        <h1>Wordpress Timthumb Alternative</h1>
+        <p class="lead">An image resizing function for Wordpress that mimics Timthumb resizing.</p>
+        <hr>
+
+        <p class="center">
+            <iframe src="http://ghbtns.com/github-btn.html?user=matthewruddy&repo=wordpress-timthumb-alternative&type=watch&count=true&size=large" allowtransparency="true" frameborder="0" scrolling="0" width="152px" height="30px"></iframe>
+            <iframe src="http://ghbtns.com/github-btn.html?user=matthewruddy&repo=wordpress-timthumb-alternative&type=fork&count=true&size=large" allowtransparency="true" frameborder="0" scrolling="0" width="146px" height="30px"></iframe>
+            <a href="https://twitter.com/rivaslider" class="twitter-follow-button gutter-right" data-show-count="false" data-size="large">Follow @rivaslider</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-url="https://github.com/matthewruddy/wordpress-timthumb-alternative" data-text="Wordpress timthumb alternative image resizing function!" data-size="large" data-related="rivaslider" data-hashtags="wordpress">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </p>
+
+        <!-- Call to action -->
+        <h3>Time to stop using Timthumb!</h3>
+        <p>For a long time we have relied on Timthumb as our 'go-to' image resizing solution for Wordpress. Plugins and themes have relied on it for far too long, and old versions leave sites vulnerable daily. <strong>Let's change this, once and for all.</strong> Wordpress provides us with great functionality, and now we can use its native resizing functions to mimic Timthumb resizing, without the vulnerabilities. So go on, give it a try!</p>
+        <hr>
+
+        <!-- Usage -->
+        <h3>Usage</h3>
+        <p>Well, there isn't a lot to say! If you've gotten this far, chances are you know how to use the function. For those of you that don't, it is fairly straightforward. Have a look below.</p>
+        <p class="gutter-top">
+            <code>
+                <pre>
+$url = 'http://yourwordpressdomain.com/wp-content/uploads/01/image1.png';      // Required
+$width = 300;                                                                  // Optional. Defaults to '150'
+$height = 200;                                                                 // Optional. Defaults to '150'
+$crop = true;                                                                  // Optional. Defaults to 'true'
+$retina = false;                                                               // Optional. Defaults to 'false'
+
+// Call the resizing function (returns an array)
+$image = matthewruddy_image_resize( $url, $width, $height, $crop, $retina );
+
+// Outputs resized image URL, http://yourwordpressdomain.com/wp-content/uploads/01/image1-300x200.png
+echo $image['url'];</pre>
+            </code>
+        </p>
+        <hr>
+
+        <!-- Return -->
+        <h3>Return</h3>
+        <p class="gutter-top">If all goes well, <code>$image</code> will contain 4 values, <code>$image['url']</code>, <code>$image['width']</code>, <code>$image['height']</code> and <code>$image['type']</code> respectively. These are pretty self explainatory.</p>
+        <p>If the function fails before any image manipulation begins, it still returns an array, but the <code>$image['url']</code> will point to the <b>original image.</b></p>
+        <p>If it fails during manipulation, a <b>Wordpress error</b> (see WP_Error class) will be returned. When using this function, it is advised you use <code>is_wp_error()</code> to check for errors before continuing with code execution. This will prevent any nasty errors and give you a chance to fail gracefully and still know what is going wrong.</p>
+        <p>Error checking can be as simple as what you see below.</p>
+        <p class="gutter-top">
+            <code>
+                <pre>
+if ( is_wp_error( $image ) ) {
+    echo $image->get_error_message()        // Displays error message returned from resizing function
+} else {
+    .. Do usual execution here ..           // Everything appears to have gone well. Continue as normal!
+}</pre>
+            </code>
+        </p>
+        <hr>
+
+        <!-- Parameters -->
+        <h3>Parameters</h3>
+        <p class="gutter-top">The function contains 5 parameters, of which only the <code>$url</code> is <b>required</b>. <code>$url</code>, <code>$width</code> and <code>$height</code> are all pretty straightforward. The other two are <code>$crop</code>, a boolean for control image cropping, and <code>$retina</code>, another boolean for creating images that are double the width and height, ideal for double pixel ratio devices (such as iPhone 4+ and The New iPad).</p>
+        <p>Before this function you could easily use a cookie to determine the users device pixel ratio, and use a conditional PHP <code>if</code> statement to set the <code>$retina</code> value to <code>true</code> or <code>false</code> appropriately. Sounds tough? Believe me, it's not!</p>
+        <p>Images are saved into the <b>'wp-content/uploads'</b> directory, just like Wordpress itself automatically does. Images served are static. As this uses a lot of Wordpress functions, it only really works with Wordpress.</p>
+        <hr>
+
+        <!-- Note -->
+        <h3>An important notice</h3>
+        <p><b>This function will only work with local images from your server</b>. Resizing images from external URLs isn't supported. It is just too slow, especially if the WP_HTTP API fails and times-out. No one wants to experience a slow site. I'm sure there would also be some security risks involved also, so I simply haven't tried to get it to work.</p>
+
+        <!-- Credits -->
+        <hr>
+        <h3>About the author</h3>
+        <div class="row gutter-top">
+            <div class="span2" style="margin-top: 5px;">
+                <a href="https://twitter.com/matthewruddycom" class="avatar">
+                    <img src="http://1.gravatar.com/avatar/3989ea0bb66e20f7694d93c148fc8563?s=115&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D60&amp;r=G" width="115" height="115" class="img-circle" />
+                </a>
+            </div>
+            <div class="span10">
+                <p>Not too much to say really. I'm a 19 year old aspiring entrepeneur and web developer based in Dublin, Ireland. I've deferred my position in university to pursue my first Wordpress based startup. Love creating things that make your daily life a little easier. Be it a simple Wordpress plugin, or a fully-blown admin extension.</p>
+                <p>Currently I'm working hard with my first major venture, Riva Slider, which has proven very successful so far. <b>Please follow and tweet about us on Twitter!</b></p>
+                <p>
+                    <a href="https://twitter.com/rivaslider" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @rivaslider</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                    <a href="https://twitter.com/mathewruddycom" class="twitter-follow-button gutter-left" data-show-count="false" data-size="large">Follow @mathewruddycom</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                </p>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <hr>
+        <p class="center smaller">Released under GPL license by <a href="https://twitter.com/matthewruddycom">Matthew Ruddy</a> from <a href="https://rivaslider.com">Riva Slider</a>.</p>
+
+    </div>
+</body>
+</html>
