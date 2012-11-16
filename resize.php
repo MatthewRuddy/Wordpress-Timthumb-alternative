@@ -1,40 +1,35 @@
 <?php
 
 /**
- *  Resizes an image, and returns an array containing the resized URL, width, height and file type.
- *  Because Wordpress 3.5 has added the 'WP_Image_Editor' class, and depreciated some of the functions
- *  we would normally rely on (such as wp_load_image), we've had to create two separate functions.
+ *  Resizes an image and returns an array containing the resized URL, width, height and file type. Uses native Wordpress functionality.
+ *
+ *  Because Wordpress 3.5 has added the new 'WP_Image_Editor' class and depreciated some of the functions
+ *  we would normally rely on (such as wp_load_image), a separate function has been created for 3.5+.
+ *
+ *  Providing two separate functions means we can be backwards compatible and future proof. Hooray!
  *  
- *  The first function is for Wordpress 3.5+ and uses the WP_Image_Editor class,
- *  and the second function uses various GD Library functions to resize the image.
- *  Both produce the same result.
+ *  The first function (3.5+) supports GD Library and Imagemagick. Worpress will pick whichever is most appropriate.
+ *  The second function (3.4.2 and lower) only support GD Library.
+ *  If none of the supported libraries are available the function will bail and return the original image.
  *
- *  This might seem like overkill, but because some old image-based functions (such as the one mentioned above) have been depreciated,
- *  we've had to do this to avoid users with WP_Debug enabled from receiving error messages.
- *
- *  This is future proof as well, and means we don't have set Wordpress 3.5 as the minimum requirement!
- *
- *  Lastly, Wordpress 3.5+ can handle resizing with either ImageMagik or GD Library.
- *  However, our pre-Wordpress 3.5 function can only use GD Library. This shouldn't be a problem,
- *  but if you don't have GD Library installed and aren't using Wordpress 3.5, you won't be able to avail of image resizing at all.
- *
+ *  Both functions produce the exact same results when successful.
+ *  Images are saved to the Wordpress uploads directory, just like images uploaded through the Media Library.
  * 
- *  Copyright 2012 Matthew Ruddy (http://rivaslider.com)
- *  
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 2, as 
- *  published by the Free Software Foundation.
- * 
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *  
- *  
+    *  Copyright 2012 Matthew Ruddy (http://rivaslider.com)
+    *  
+    *  This program is free software; you can redistribute it and/or modify
+    *  it under the terms of the GNU General Public License, version 2, as 
+    *  published by the Free Software Foundation.
+    * 
+    *  This program is distributed in the hope that it will be useful,
+    *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+    *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    *  GNU General Public License for more details.
+    *  
+    *  You should have received a copy of the GNU General Public License
+    *  along with this program; if not, write to the Free Software
+    *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
  *  @author Matthew Ruddy (http://rivaslider.com)
  *  @return array   An array containing the resized image URL, width, height and file type.
  */
