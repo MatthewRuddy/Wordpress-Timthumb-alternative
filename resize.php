@@ -36,8 +36,19 @@
 if ( class_exists( 'WP_Image_Editor' ) && isset( $wp_version ) && version_compare( '3.5', $wp_version, '>=' ) ) {
     function matthewruddy_image_resize( $url, $width = 150, $height = 150, $crop = true, $retina = false ) {
 
+        global $wpdb;
+
         if ( empty( $url ) )
             return new WP_Error( 'no_image_url', __( 'No image URL has been entered.' ), $url );
+
+        /*
+         *  Bail if this image isn't in the Media Library.
+         *  We only want to resize Media Library images, so we can be sure they get deleted correctly when appropriate.
+         */
+        $query = $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE guid='%s'", $url );
+        $get_attachment = $wpdb->get_results( $query );
+        if ( !$get_attachment )
+            return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
         // Get the image file path
         $file_path = parse_url( $url );
@@ -108,12 +119,25 @@ if ( class_exists( 'WP_Image_Editor' ) && isset( $wp_version ) && version_compar
             // Now let's save the image
             $saved = $editor->save( $dest_file_name );
 
+            // Get resized image information
+            $resized_url = str_replace( basename( $url ), basename( $saved['path'] ), $url );
+            $resized_width = $saved['width'];
+            $resized_height = $saved['height'];
+            $resized_type = $saved['mime-type'];
+
+            // Add the resized dimensions to original image metadata (so we can delete our resized images when the original image is delete from the Media Library)
+            $metadata = wp_get_attachment_metadata( $get_attachment[0]->ID );
+            if ( isset( $metadata['image_meta'] ) ) {
+                $metadata['image_meta']['resized_images'][] = $resized_width .'x'. $resized_height;
+                wp_update_attachment_metadata( $get_attachment[0]->ID, $metadata );
+            }
+
             // Create the image array
             $image_array = array(
-                'url' => str_replace( basename( $url ), basename( $saved['path'] ), $url ),
-                'width' => $saved['width'],
-                'height' => $saved['height'],
-                'type' => $saved['mime-type']
+                'url' => $resized_url,
+                'width' => $resized_width,
+                'height' => $resized_height,
+                'type' => $resized_type
             );
 
         }
@@ -134,11 +158,22 @@ if ( class_exists( 'WP_Image_Editor' ) && isset( $wp_version ) && version_compar
 else {
     function matthewruddy_image_resize( $url, $width = 150, $height = 150, $crop = true, $retina = false ) {
 
+        global $wpdb;
+
         if ( empty( $url ) )
             return new WP_Error( 'no_image_url', __( 'No image URL has been entered.' ), $url );
 
         // Bail if GD Library doesn't exist
         if ( !extension_loaded('gd') || !function_exists('gd_info') )
+            return array( 'url' => $url, 'width' => $width, 'height' => $height );
+
+        /*
+         *  Bail if this image isn't in the Media Library either.
+         *  We only want to resize Media Library images, so we can be sure they get deleted correctly when appropriate.
+         */
+        $query = $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE guid='%s'", $url );
+        $get_attachment = $wpdb->get_results( $query );
+        if ( !$get_attachment )
             return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
         // Destination width and height variables
@@ -245,26 +280,79 @@ else {
             $perms = $stat['mode'] & 0000666;
             @chmod( $dest_file_name, $perms );
 
+            // Get some information about the resized image
+            $new_size = @getimagesize( $dest_file_name );
+            if ( !$new_size )
+                return new WP_Error( 'resize_path_getimagesize_failed', __( 'Failed to get $dest_file_name (resized image) info via @getimagesize' ), $dest_file_name );
+            list( $resized_width, $resized_height, $resized_type ) = $new_size;
+
+            // Get the new image URL
+            $resized_url = str_replace( basename( $url ), basename( $dest_file_name ), $url );
+
+            // Add the resized dimensions to original image metadata (so we can delete our resized images when the original image is delete from the Media Library)
+            $metadata = wp_get_attachment_metadata( $get_attachment[0]->ID );
+            if ( isset( $metadata['image_meta'] ) ) {
+                $metadata['image_meta']['resized_images'][] = $resized_width .'x'. $resized_height;
+                wp_update_attachment_metadata( $get_attachment[0]->ID, $metadata );
+            }
+
+            // Return array with resized image information
+            $image_array = array(
+                'url' => $resized_url,
+                'width' => $resized_width,
+                'height' => $resized_height,
+                'type' => $resized_type
+            );
+
         }
-
-        // Get some information about the resized image
-        $new_size = @getimagesize( $dest_file_name );
-        if ( !$new_size )
-            return new WP_Error( 'resize_path_getimagesize_failed', __( 'Failed to get $dest_file_name (resized image) info via @getimagesize' ), $dest_file_name );
-        list( $resized_width, $resized_height, $resized_type ) = $new_size;
-
-        // Get the new image URL
-        $resized_url = str_replace( basename( $url ), basename( $dest_file_name ), $url );
-
-        // Return array with resized image information
-        $image_array = array(
-            'url' => $resized_url,
-            'width' => $resized_width,
-            'height' => $resized_height,
-            'type' => $resized_type
-        );
+        else {
+            $image_array = array(
+                'url' => str_replace( basename( $url ), basename( $dest_file_name ), $url ),
+                'width' => $dest_height,
+                'height' => $dest_height,
+                'type' => $ext
+            );
+        }
 
         return $image_array;
 
     }
+}
+
+/**
+ *  Deletes the resized images when the original image is deleted from the Wordpress Media Library.
+ *
+ *  @author Matthew Ruddy
+ */
+add_action( 'delete_attachment', 'matthewruddy_delete_resized_images' );
+function matthewruddy_delete_resized_images( $post_id ) {
+
+    // Get attachment image metadata
+    $metadata = wp_get_attachment_metadata( $post_id );
+    if ( !$metadata )
+        return;
+
+    // Do some bailing if we cannot continue
+    if ( !isset( $metadata['file'] ) || !isset( $metadata['image_meta']['resized_images'] ) )
+        return;
+    $pathinfo = pathinfo( $metadata['file'] );
+    $resized_images = $metadata['image_meta']['resized_images'];
+
+    // Get Wordpress uploads directory (and bail if it doesn't exist)
+    $wp_upload_dir = wp_upload_dir();
+    $upload_dir = $wp_upload_dir['basedir'];
+    if ( !is_dir( $upload_dir ) )
+        return;
+
+    // Delete the resized images
+    foreach ( $resized_images as $dims ) {
+
+        // Get the resized images filename
+        $file = $upload_dir .'/'. $pathinfo['dirname'] .'/'. $pathinfo['filename'] .'-'. $dims .'.'. $pathinfo['extension'];
+
+        // Delete the resized image
+        @unlink( $file );
+
+    }
+
 }
