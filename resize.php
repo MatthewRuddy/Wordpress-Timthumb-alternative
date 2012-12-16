@@ -33,7 +33,7 @@
  *  @author Matthew Ruddy (http://rivaslider.com)
  *  @return array   An array containing the resized image URL, width, height and file type.
  */
-if ( class_exists( 'WP_Image_Editor' ) && isset( $wp_version ) && version_compare( '3.5', $wp_version, '>=' ) ) {
+if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
     function matthewruddy_image_resize( $url, $width = 150, $height = 150, $crop = true, $retina = false ) {
 
         global $wpdb;
@@ -82,8 +82,8 @@ if ( class_exists( 'WP_Image_Editor' ) && isset( $wp_version ) && version_compar
 
         if ( !file_exists( $dest_file_name ) ) {
 
-            // Load Wordpress Image Editor instance
-            $editor = WP_Image_Editor::get_instance( $file_path );
+            // Load Wordpress Image Editor
+            $editor = wp_get_image_editor( $file_path );
             if ( is_wp_error( $editor ) )
                 return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
