@@ -191,8 +191,8 @@ else {
             return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
         // Destination width and height variables
-        $dest_width = ( $retina ) ? ( $width * 2 ) : $width;
-        $dest_height = ( $retina ) ? ( $height * 2 ) : $height;
+        $dest_width = $width * $retina;
+        $dest_height = $height * $retina;
 
         // Get image file path
         $file_path = parse_url( $url );
