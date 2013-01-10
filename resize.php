@@ -34,13 +34,20 @@
  *  @return array   An array containing the resized image URL, width, height and file type.
  */
 if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
-    function matthewruddy_image_resize( $url, $width = 150, $height = 150, $crop = true, $retina = false ) {
+    function matthewruddy_image_resize( $url, $width = NULL, $height = NULL, $crop = true, $retina = false ) {
 
         global $wpdb;
 
         if ( empty( $url ) )
             return new WP_Error( 'no_image_url', __( 'No image URL has been entered.' ), $url );
 
+        // Get default size from database
+	$width  = $width  ?: get_option( 'thumbnail_size_w' );
+	$height = $height ?: get_option( 'thumbnail_size_h' );
+		  
+        // Allow for different retina sizes
+	$retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
+			
         /*
          *  Bail if this image isn't in the Media Library.
          *  We only want to resize Media Library images, so we can be sure they get deleted correctly when appropriate.
@@ -62,8 +69,8 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
         }
 
         // Destination width and height variables
-        $dest_width = ( $retina ) ? ( $width * 2 ) : $width;
-        $dest_height = ( $retina ) ? ( $height * 2 ) : $height;
+        $dest_width = $width * $retina;
+        $dest_height = $height * $retina;
 
         // File name suffix (appended to original file name)
         $suffix = "{$dest_width}x{$dest_height}";
@@ -156,7 +163,7 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
     }
 }
 else {
-    function matthewruddy_image_resize( $url, $width = 150, $height = 150, $crop = true, $retina = false ) {
+    function matthewruddy_image_resize( $url, $width = NULL, $height = NULL, $crop = true, $retina = false ) {
 
         global $wpdb;
 
@@ -167,6 +174,13 @@ else {
         if ( !extension_loaded('gd') || !function_exists('gd_info') )
             return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
+        // Get default size from database
+   	$width  = $width  ?: get_option( 'thumbnail_size_w' );
+	$height = $height ?: get_option( 'thumbnail_size_h' );
+		  
+        // Allow for different retina sizes
+	$retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
+		
         /*
          *  Bail if this image isn't in the Media Library either.
          *  We only want to resize Media Library images, so we can be sure they get deleted correctly when appropriate.
@@ -177,8 +191,8 @@ else {
             return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
         // Destination width and height variables
-        $dest_width = ( $retina ) ? ( $width * 2 ) : $width;
-        $dest_height = ( $retina ) ? ( $height * 2 ) : $height;
+        $dest_width = $width * $retina;
+        $dest_height = $height * $retina;
 
         // Get image file path
         $file_path = parse_url( $url );
