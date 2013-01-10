@@ -42,8 +42,8 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
             return new WP_Error( 'no_image_url', __( 'No image URL has been entered.' ), $url );
 
         // Get default size from database
-		  $width  = $width  ?: get_option( 'thumbnail_size_w' );
-		  $height = $height ?: get_option( 'thumbnail_size_h' );
+		$width  = $width  ?: get_option( 'thumbnail_size_w' );
+		$height = $height ?: get_option( 'thumbnail_size_h' );
 		  
         // Allow for different retina sizes
 		  $retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
@@ -175,11 +175,12 @@ else {
             return array( 'url' => $url, 'width' => $width, 'height' => $height );
 
         // Get default size from database
-   	  $width  = $width  ?: get_option( 'thumbnail_size_w' );
-		  $height = $height ?: get_option( 'thumbnail_size_h' );
+   	    $width  = $width  ?: get_option( 'thumbnail_size_w' );
+		$height = $height ?: get_option( 'thumbnail_size_h' );
 		  
         // Allow for different retina sizes
-		  $retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
+		$retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
+		
         /*
          *  Bail if this image isn't in the Media Library either.
          *  We only want to resize Media Library images, so we can be sure they get deleted correctly when appropriate.
