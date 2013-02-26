@@ -108,6 +108,17 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
 							$src_h = round( $orig_height / $cmp_y * $cmp_x );
 							$src_y = round( ( $orig_height - ( $orig_height / $cmp_y * $cmp_x ) ) / 2 );
 						}
+						// positional cropping!
+							if( strpos($crop,',') > 0 ) {
+								$crop = explode(',',$crop);
+								$src_x = $crop[0];
+								$src_y = $crop[1];
+							}elseif( $crop !== true ) {
+								if (strpos ($crop, 't') !== false) $src_y = 0;
+								if (strpos ($crop, 'b') !== false) $src_y = $orig_height - $src_h;
+								if (strpos ($crop, 'l') !== false) $src_x = 0;
+								if (strpos ($crop, 'r') !== false) $src_x = $orig_width - $src_w;
+							}
 					}
 					
 				// Time to crop the image!
