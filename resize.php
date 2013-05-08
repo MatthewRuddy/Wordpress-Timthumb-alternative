@@ -151,7 +151,7 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
         else {
             $image_array = array(
                 'url' => str_replace( basename( $url ), basename( $dest_file_name ), $url ),
-                'width' => $dest_height,
+                'width' => $dest_width,
                 'height' => $dest_height,
                 'type' => $ext
             );
