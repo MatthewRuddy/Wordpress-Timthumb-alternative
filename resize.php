@@ -42,8 +42,8 @@ if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
 			return new WP_Error( 'no_image_url', __( 'No image URL has been entered.' ), $url );
 
 		// Get default size from database
-		$width = ( $width )  ? get_option( 'thumbnail_size_w' ) : $width;
-		$height = ( $height ) ? get_option( 'thumbnail_size_h' ) : $height;
+		$width = ( !$width )  ? get_option( 'thumbnail_size_w' ) : $width;
+		$height = ( !$height ) ? get_option( 'thumbnail_size_h' ) : $height;
 		  
 		// Allow for different retina sizes
 		$retina = $retina ? ( $retina === true ? 2 : $retina ) : 1;
