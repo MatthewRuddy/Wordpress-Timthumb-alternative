@@ -33,6 +33,9 @@
  *  @author Matthew Ruddy (http://easinglider.com)
  *  @return array   An array containing the resized image URL, width, height and file type.
  */
+ 
+global $wp_version;
+ 
 if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
 	function matthewruddy_image_resize( $url, $width = NULL, $height = NULL, $crop = true, $retina = false ) {
 
