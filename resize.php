@@ -15,7 +15,7 @@
  *  Both functions produce the exact same results when successful.
  *  Images are saved to the Wordpress uploads directory, just like images uploaded through the Media Library.
  * 
-	*  Copyright 2013 Matthew Ruddy (http://easinglider.com)
+	*  Copyright 2013 Matthew Ruddy (http://easingslider.com)
 	*  
 	*  This program is free software; you can redistribute it and/or modify
 	*  it under the terms of the GNU General Public License, version 2, as 
@@ -30,7 +30,7 @@
 	*  along with this program; if not, write to the Free Software
 	*  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- *  @author Matthew Ruddy (http://easinglider.com)
+ *  @author Matthew Ruddy (http://easingslider.com)
  *  @return array   An array containing the resized image URL, width, height and file type.
  */
 if ( isset( $wp_version ) && version_compare( $wp_version, '3.5' ) >= 0 ) {
